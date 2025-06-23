@@ -246,7 +246,7 @@ const Services = () => {
                   </motion.p>
                   <motion.button
                     onClick={() => handleOrderClick(product.name)}
-                    className="w-full px-4 py-3 sm:px-6 sm:py-3 border-2 border-blue-600 text-blue-600 rounded-2xl hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 hover:text-white transition-all duration-500 font-semibold text-sm sm:text-lg group-hover:shadow-2xl relative overflow-hidden"
+                    className="w-full px-4 py-3 sm:px-6 sm:py-3 border-2 border-blue-600 text-blue-600 rounded-2xl hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 hover:text-white transition-all duration-500 font-semibold text-sm sm:text-lg group-hover:shadow-2xl relative overflow-hidden focus:outline-none focus:ring-2 focus:ring-blue-500"
                     whileHover={{
                       scale: 1.02,
                       boxShadow: "0 20px 40px -10px rgba(37, 99, 235, 0.4)",
@@ -291,15 +291,15 @@ const Services = () => {
               type: "spring",
               stiffness: 400,
             }}
-            className="bg-white/95 backdrop-blur-md border border-green-200 shadow-2xl rounded-2xl p-4 max-w-sm mx-auto"
+            className="bg-white border border-green-200 shadow-2xl rounded-2xl p-4 max-w-sm mx-auto"
           >
             <div className="flex items-center space-x-3">
               <div className="flex-shrink-0">
                 <motion.div
                   className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center"
                   animate={{
-                    scale: [1, 1.2, 1],
-                    rotate: [0, 10, -10, 0],
+                    scale: [1, 1.2],
+                    rotate: [0, 10],
                   }}
                   transition={{
                     duration: 0.6,

@@ -180,7 +180,7 @@ const Projects = () => {
 
             <motion.a
               href="/aboutus"
-              className="inline-block px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold rounded-xl hover:from-blue-700 hover:to-purple-700 focus:ring-4 focus:ring-blue-500/20 focus:outline-none shadow-2xl hover:shadow-3xl transition-all duration-300 relative overflow-hidden"
+              className="inline-block px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold rounded-xl hover:from-blue-700 hover:to-purple-700 focus:ring-2 focus:ring-blue-500 focus:outline-none shadow-2xl hover:shadow-3xl transition-all duration-300 relative overflow-hidden"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
@@ -211,7 +211,7 @@ const Projects = () => {
             }}
           >
             <motion.div
-              className="bg-white/80 rounded-3xl p-8 shadow-2xl hover:shadow-3xl transition-all duration-500 relative overflow-hidden"
+              className="bg-white rounded-3xl p-8 shadow-2xl hover:shadow-3xl transition-all duration-500 relative overflow-hidden"
               variants={itemVariants}
               whileHover={{
                 scale: 1.02,

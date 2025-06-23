@@ -2,36 +2,91 @@
 
 import React, { useState } from "react";
 import { Phone, Mail } from "lucide-react";
+import { Notification } from "../ui/Notification";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+
+interface ContactFormData {
+  name: string;
+  phone: string;
+  contactMethod: "email" | "telegram";
+  contactDetail: string;
+  message: string;
+}
+
+// Validation schema
+const schema = yup
+  .object({
+    name: yup
+      .string()
+      .required("Имя обязательно")
+      .min(2, "Имя должно содержать минимум 2 символа"),
+    phone: yup
+      .string()
+      .required("Телефон обязателен")
+      .min(10, "Введите корректный номер телефона"),
+    contactDetail: yup
+      .string()
+      .required("Контакт обязателен")
+      .when("contactMethod", {
+        is: "email",
+        then: (schema) => schema.email("Введите корректный email"),
+        otherwise: (schema) =>
+          schema.min(3, "Username должен содержать минимум 3 символа"),
+      }),
+    message: yup
+      .string()
+      .required("Сообщение обязательно")
+      .max(500, "Сообщение не должно превышать 500 символов"),
+    contactMethod: yup.string().oneOf(["email", "telegram"]).required(),
+  })
+  .required();
 
 const Contact = () => {
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [contactMethod, setContactMethod] = useState<"email" | "telegram">(
-    "email"
-  );
-  const [contactDetail, setContactDetail] = useState("");
-  const [message, setMessage] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log({
-      name,
-      phone,
-      contactMethod,
-      contactDetail,
-      message,
-    });
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    watch,
+    setValue,
+    reset,
+  } = useForm<ContactFormData>({
+    resolver: yupResolver(schema),
+    defaultValues: {
+      name: "",
+      phone: "",
+      contactMethod: "email",
+      contactDetail: "",
+      message: "",
+    },
+  });
+
+  const contactMethod = watch("contactMethod");
+
+  // Custom input handlers for validation
+  const handleNameInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Only allow letters, spaces, hyphens, and apostrophes
+    const value = e.target.value.replace(/[^а-яёa-zA-Z\s\-'\.]/g, "");
+    e.target.value = value;
+  };
+
+  const handlePhoneInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Only allow numbers, spaces, parentheses, dashes, and plus sign
+    const value = e.target.value.replace(/[^\d\s\(\)\-\+]/g, "");
+    e.target.value = value;
+  };
+
+  const onSubmit = async (data: ContactFormData) => {
+    console.log(data);
     setIsSubmitted(true);
-    // Reset form or show success message
+
+    // Reset form after 3 seconds
     setTimeout(() => {
       setIsSubmitted(false);
-      // Optionally reset form fields
-      setName("");
-      setPhone("");
-      setContactMethod("email");
-      setContactDetail("");
-      setMessage("");
+      reset();
     }, 3000);
   };
 
@@ -60,6 +115,16 @@ const Contact = () => {
 
   return (
     <section className="py-12 sm:py-16 md:py-24 bg-gray-50">
+      {isSubmitted && (
+        <div className="fixed inset-0 flex items-center justify-center z-[999999] p-4">
+          <Notification
+            message="Заявка отправлена успешно"
+            type="success"
+            duration={3000}
+            onClose={() => setIsSubmitted(false)}
+          />
+        </div>
+      )}
       <div className="container mx-auto px-4">
         <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col lg:flex-row">
           {/* Left Side (Blue Panel) */}
@@ -94,7 +159,10 @@ const Contact = () => {
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6 sm:mb-8 text-gray-800">
               Оставить заявку
             </h2>
-            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              className="space-y-4 sm:space-y-6"
+            >
               {/* Name Input */}
               <div>
                 <label htmlFor="name" className="sr-only">
@@ -103,12 +171,17 @@ const Contact = () => {
                 <input
                   type="text"
                   id="name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
                   placeholder="Ваше имя"
-                  required
+                  {...register("name")}
+                  onChange={handleNameInput}
+                  maxLength={50}
                   className="w-full px-4 py-3 sm:py-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow text-sm sm:text-base"
                 />
+                {errors.name && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.name.message}
+                  </p>
+                )}
               </div>
 
               {/* Phone Input */}
@@ -119,12 +192,17 @@ const Contact = () => {
                 <input
                   type="tel"
                   id="phone"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
                   placeholder="Телефон"
-                  required
+                  {...register("phone")}
+                  onChange={handlePhoneInput}
+                  maxLength={20}
                   className="w-full px-4 py-3 sm:py-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow text-sm sm:text-base"
                 />
+                {errors.phone && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.phone.message}
+                  </p>
+                )}
               </div>
 
               {/* Contact Method Toggle */}
@@ -135,7 +213,7 @@ const Contact = () => {
                 <div className="mt-2 grid grid-cols-2 gap-2">
                   <button
                     type="button"
-                    onClick={() => setContactMethod("email")}
+                    onClick={() => setValue("contactMethod", "email")}
                     className={`px-3 py-2 sm:px-4 sm:py-2 rounded-lg text-sm font-semibold transition-colors ${
                       contactMethod === "email"
                         ? "bg-blue-600 text-white shadow"
@@ -146,7 +224,7 @@ const Contact = () => {
                   </button>
                   <button
                     type="button"
-                    onClick={() => setContactMethod("telegram")}
+                    onClick={() => setValue("contactMethod", "telegram")}
                     className={`px-3 py-2 sm:px-4 sm:py-2 rounded-lg text-sm font-semibold transition-colors ${
                       contactMethod === "telegram"
                         ? "bg-blue-600 text-white shadow"
@@ -168,16 +246,19 @@ const Contact = () => {
                 <input
                   type={contactMethod === "email" ? "email" : "text"}
                   id="contactDetail"
-                  value={contactDetail}
-                  onChange={(e) => setContactDetail(e.target.value)}
                   placeholder={
                     contactMethod === "email"
                       ? "your-email@example.com"
                       : "@username"
                   }
-                  required
+                  {...register("contactDetail")}
                   className="w-full px-4 py-3 sm:py-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow text-sm sm:text-base"
                 />
+                {errors.contactDetail && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.contactDetail.message}
+                  </p>
+                )}
               </div>
 
               {/* Message Textarea */}
@@ -188,12 +269,15 @@ const Contact = () => {
                 <textarea
                   id="message"
                   rows={4}
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
                   placeholder="Сообщение"
-                  required
+                  {...register("message")}
                   className="w-full px-4 py-3 sm:py-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow text-sm sm:text-base"
                 ></textarea>
+                {errors.message && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.message.message}
+                  </p>
+                )}
               </div>
 
               {/* Submit Button */}

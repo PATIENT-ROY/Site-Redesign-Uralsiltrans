@@ -1,6 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
 
 interface OrderModalProps {
   isOpen: boolean;
@@ -19,6 +22,36 @@ export interface OrderFormData {
   contactType: "email" | "telegram";
 }
 
+// Validation schema
+const schema = yup
+  .object({
+    name: yup
+      .string()
+      .required("Имя обязательно")
+      .min(2, "Имя должно содержать минимум 2 символа"),
+    phone: yup
+      .string()
+      .required("Телефон обязателен")
+      .min(10, "Введите корректный номер телефона"),
+    email: yup
+      .string()
+      .required("Email обязателен")
+      .when("contactType", {
+        is: "email",
+        then: (schema) => schema.email("Введите корректный email"),
+        otherwise: (schema) =>
+          schema.min(3, "Username должен содержать минимум 3 символа"),
+      }),
+    comment: yup
+      .string()
+      .required("Сообщение обязательно")
+      .max(500, "Сообщение не должно превышать 500 символов"),
+    contactType: yup.string().oneOf(["email", "telegram"]).required(),
+  })
+  .required();
+
+type FormData = Omit<OrderFormData, "productName">;
+
 export const OrderModal = ({
   isOpen,
   onClose,
@@ -26,97 +59,68 @@ export const OrderModal = ({
   onSubmit,
   onFormSubmitted,
 }: OrderModalProps) => {
-  const [formData, setFormData] = useState<Omit<OrderFormData, "productName">>({
-    name: "",
-    email: "",
-    phone: "",
-    comment: "",
-    contactType: "email",
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    watch,
+    setValue,
+    reset,
+  } = useForm<FormData>({
+    resolver: yupResolver(schema),
+    defaultValues: {
+      name: "",
+      email: "",
+      phone: "",
+      comment: "",
+      contactType: "email",
+    },
   });
 
-  // Reset form when modal opens
-  useEffect(() => {
-    if (isOpen) {
-      setFormData({
-        name: "",
-        email: "",
-        phone: "",
-        comment: "",
-        contactType: "email",
-      });
+  const contactType = watch("contactType");
+
+  // Custom input handlers for validation
+  const handleNameInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Only allow letters, spaces, hyphens, and apostrophes
+    const value = e.target.value.replace(/[^а-яёa-zA-Z\s\-'\.]/g, "");
+    e.target.value = value;
+  };
+
+  const handlePhoneInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Only allow numbers, spaces, parentheses, dashes, and plus sign
+    const value = e.target.value.replace(/[^\d\s\(\)\-\+]/g, "");
+    e.target.value = value;
+  };
+
+  const onSubmitForm = async (data: FormData) => {
+    setIsSubmitting(true);
+    try {
+      await onSubmit({ ...data, productName });
+      reset();
+      onFormSubmitted?.();
+      // Close modal after successful submission
+      onClose();
+    } catch (error) {
+      console.error("Error submitting form:", error);
+    } finally {
+      setIsSubmitting(false);
     }
-  }, [isOpen]);
-
-  if (!isOpen) return null;
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Form submitted");
-    onSubmit({ ...formData, productName });
-
-    // Notify parent to show notification
-    onFormSubmitted?.();
-
-    // Close modal
-    onClose();
   };
 
   const handleClose = () => {
-    console.log("Close button clicked");
+    reset();
     onClose();
   };
 
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
-      console.log("Backdrop clicked");
-      onClose();
+      handleClose();
     }
   };
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-
-    // Validation based on field type
-    let validatedValue = value;
-
-    switch (name) {
-      case "name":
-        // Only letters, spaces, and some special characters for names
-        validatedValue = value.replace(/[^а-яёa-z\s\-'\.]/gi, "");
-        break;
-      case "phone":
-        // Only numbers, spaces, parentheses, dashes, and plus sign
-        validatedValue = value.replace(/[^\d\s\(\)\-\+]/g, "");
-        break;
-      case "email":
-        if (formData.contactType === "email") {
-          // Standard email validation
-          validatedValue = value.replace(/[^\w@\.\-]/g, "");
-        } else {
-          // Telegram username - only letters, numbers, underscore
-          validatedValue = value.replace(/[^\w]/g, "");
-          // Ensure it starts with @ if not empty
-          if (validatedValue && !validatedValue.startsWith("@")) {
-            validatedValue = "@" + validatedValue;
-          }
-        }
-        break;
-      case "comment":
-        // Allow all characters for comments
-        validatedValue = value;
-        break;
-      default:
-        validatedValue = value;
-    }
-
-    setFormData((prev) => ({ ...prev, [name]: validatedValue }));
-  };
-
-  const setContactType = (type: "email" | "telegram") => {
-    setFormData((prev) => ({ ...prev, contactType: type }));
-  };
+  if (!isOpen) return null;
 
   return (
     <div
@@ -159,56 +163,65 @@ export const OrderModal = ({
 
         {/* Form */}
         <div className="p-4 sm:p-6">
-          <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+          <form
+            onSubmit={handleSubmit(onSubmitForm)}
+            className="space-y-3 sm:space-y-4"
+          >
             <div>
               <input
                 type="text"
-                name="name"
                 placeholder="Ваше имя"
-                value={formData.name}
-                onChange={handleChange}
+                {...register("name")}
+                onChange={handleNameInput}
                 maxLength={50}
-                pattern="[а-яёa-z\s\-'\.]+"
-                className="w-full px-3 py-3 sm:px-4 sm:py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 focus:outline-none text-gray-900 text-sm sm:text-base transition-all duration-300 bg-white/80 backdrop-blur-sm"
+                className="w-full px-3 py-3 sm:px-4 sm:py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none text-gray-900 text-sm sm:text-base transition-all duration-300 bg-white font-medium"
               />
+              {errors.name && (
+                <p className="text-red-600 text-xs mt-1 font-medium">
+                  {errors.name.message}
+                </p>
+              )}
             </div>
 
             <div>
               <input
                 type="tel"
-                name="phone"
                 placeholder="Телефон"
-                value={formData.phone}
-                onChange={handleChange}
+                {...register("phone")}
+                onChange={handlePhoneInput}
                 maxLength={20}
-                pattern="[\d\s\(\)\-\+]+"
-                className="w-full px-3 py-3 sm:px-4 sm:py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 focus:outline-none text-gray-900 text-sm sm:text-base transition-all duration-300 bg-white/80 backdrop-blur-sm"
+                className="w-full px-3 py-3 sm:px-4 sm:py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none text-gray-900 text-sm sm:text-base transition-all duration-300 bg-white font-medium"
               />
+              {errors.phone && (
+                <p className="text-red-600 text-xs mt-1 font-medium">
+                  {errors.phone.message}
+                </p>
+              )}
             </div>
 
             <div className="relative">
-              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-xs sm:text-sm font-semibold text-gray-800 mb-2">
                 Способ связи
               </label>
               <div className="flex space-x-2">
                 <button
                   type="button"
-                  onClick={() => setContactType("email")}
-                  className={`px-3 py-2 sm:px-4 sm:py-2 rounded-lg transition-all duration-300 font-medium flex-1 text-xs sm:text-sm ${
-                    formData.contactType === "email"
+                  onClick={() => setValue("contactType", "email")}
+                  className={`px-3 py-2 sm:px-4 sm:py-2 rounded-lg transition-all duration-300 font-semibold flex-1 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    contactType === "email"
                       ? "bg-blue-100 text-blue-700 shadow-md"
-                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                   }`}
                 >
                   Email
                 </button>
                 <button
                   type="button"
-                  onClick={() => setContactType("telegram")}
-                  className={`px-3 py-2 sm:px-4 sm:py-2 rounded-lg transition-all duration-300 font-medium flex-1 text-xs sm:text-sm ${
-                    formData.contactType === "telegram"
+                  onClick={() => setValue("contactType", "telegram")}
+                  className={`px-3 py-2 sm:px-4 sm:py-2 rounded-lg transition-all duration-300 font-semibold flex-1 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    contactType === "telegram"
                       ? "bg-blue-100 text-blue-700 shadow-md"
-                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                   }`}
                 >
                   Telegram
@@ -217,54 +230,49 @@ export const OrderModal = ({
             </div>
 
             <div>
-              {formData.contactType === "email" ? (
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="Ваш Email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  maxLength={100}
-                  pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
-                  className="w-full px-3 py-3 sm:px-4 sm:py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 focus:outline-none text-gray-900 text-sm sm:text-base transition-all duration-300 bg-white/80 backdrop-blur-sm"
-                />
-              ) : (
-                <input
-                  type="text"
-                  name="email"
-                  placeholder="@username"
-                  value={formData.email}
-                  onChange={handleChange}
-                  maxLength={32}
-                  pattern="@[\w]+"
-                  className="w-full px-3 py-3 sm:px-4 sm:py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 focus:outline-none text-gray-900 text-sm sm:text-base transition-all duration-300 bg-white/80 backdrop-blur-sm"
-                />
+              <input
+                type={contactType === "email" ? "email" : "text"}
+                placeholder={
+                  contactType === "email" ? "Ваш Email" : "@username"
+                }
+                {...register("email")}
+                className="w-full px-3 py-3 sm:px-4 sm:py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none text-gray-900 text-sm sm:text-base transition-all duration-300 bg-white font-medium"
+              />
+              {errors.email && (
+                <p className="text-red-600 text-xs mt-1 font-medium">
+                  {errors.email.message}
+                </p>
               )}
             </div>
 
             <div>
               <textarea
-                name="comment"
                 placeholder="Сообщение"
                 rows={3}
-                value={formData.comment}
-                onChange={handleChange}
-                maxLength={500}
-                className="w-full px-3 py-3 sm:px-4 sm:py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 focus:outline-none text-gray-900 text-sm sm:text-base transition-all duration-300 resize-none bg-white/80 backdrop-blur-sm"
+                {...register("comment")}
+                className="w-full px-3 py-3 sm:px-4 sm:py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none text-gray-900 text-sm sm:text-base transition-all duration-300 resize-none bg-white font-medium"
               ></textarea>
+              {errors.comment && (
+                <p className="text-red-600 text-xs mt-1 font-medium">
+                  {errors.comment.message}
+                </p>
+              )}
             </div>
 
-            <p className="text-xs text-center text-gray-600 mt-3 sm:mt-4">
+            <p className="text-xs text-center text-gray-700 mt-3 sm:mt-4 font-medium">
               Отправляя заявку вы соглашаетесь на обработку
               <br />
-              <span className="text-gray-400">персональных данных</span>
+              <span className="text-gray-500">персональных данных</span>
             </p>
 
             <button
               type="submit"
-              className="w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold rounded-xl hover:from-blue-700 hover:to-purple-700 focus:ring-4 focus:ring-blue-500/20 focus:outline-none mt-3 sm:mt-4 text-sm sm:text-base shadow-lg hover:shadow-xl transition-all duration-300 relative overflow-hidden"
+              disabled={isSubmitting}
+              className="w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold rounded-xl hover:from-blue-700 hover:to-purple-700 focus:ring-2 focus:ring-blue-500 focus:outline-none mt-3 sm:mt-4 text-sm sm:text-base shadow-lg hover:shadow-xl transition-all duration-300 relative overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <span className="relative z-10">Отправить заявку</span>
+              <span className="relative z-10">
+                {isSubmitting ? "Отправка..." : "Отправить заявку"}
+              </span>
             </button>
           </form>
         </div>

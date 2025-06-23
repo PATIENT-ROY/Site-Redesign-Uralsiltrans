@@ -19,6 +19,7 @@ import CountUp from "react-countup";
 import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
 import ClientReviews from "../components/sections/ClientReviews";
+import LicensesSection from "../components/sections/LicensesSection";
 
 export default function ClientAboutContent() {
   const stats = [
@@ -297,6 +298,7 @@ export default function ClientAboutContent() {
                 </motion.div>
               ))}
             </div>
+            <LicensesSection />
             <ClientReviews />
           </section>
         </div>

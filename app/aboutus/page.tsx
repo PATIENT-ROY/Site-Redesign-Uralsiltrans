@@ -18,8 +18,8 @@ import { motion } from "framer-motion";
 import CountUp from "react-countup";
 import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
-import ClientReviews from "../components/sections/ClientReviews";
-import LicensesSection from "../components/sections/LicensesSection";
+import { ClientReviews } from "../components/sections/ClientReviews";
+import { LicensesSection } from "../components/sections/Licenses";
 
 export default function ClientAboutContent() {
   const stats = [

@@ -1,0 +1,1 @@
+export { LicensesSection } from "./LicensesSection";

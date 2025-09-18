@@ -1,274 +1,321 @@
 "use client";
 
-import { motion, useScroll, useTransform, useSpring } from "framer-motion";
+import { motion } from "framer-motion";
 import { products } from "../../../data/products";
-import { useState, useEffect } from "react";
-import { OrderModal, OrderFormData } from "../../ui/OrderModal";
+import { useState } from "react";
+import { OrderModal } from "../../ui/OrderModal";
 import Image from "next/image";
 import Link from "next/link";
+import {
+  Zap,
+  Shield,
+  TrendingUp,
+  Sparkles,
+  ArrowRight,
+  CheckCircle,
+} from "lucide-react";
 
 export const Services = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState("");
   const [showNotification, setShowNotification] = useState(false);
-  const [hoveredProduct, setHoveredProduct] = useState<number | null>(null);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-
-  // Parallax scroll effects
-  const { scrollY } = useScroll();
-  const sectionY = useTransform(scrollY, [0, 1000], [0, -100]);
-  const sectionOpacity = useTransform(scrollY, [0, 500, 1000], [1, 0.8, 0.6]);
-  const titleY = useTransform(scrollY, [0, 500], [0, -50]);
-  const titleScale = useTransform(scrollY, [0, 500], [1, 0.95]);
-
-  // Spring animations
-  const springConfig = { stiffness: 300, damping: 30 };
-  const springY = useSpring(sectionY, springConfig);
-  const springOpacity = useSpring(sectionOpacity, springConfig);
-  const springTitleY = useSpring(titleY, springConfig);
-  const springTitleScale = useSpring(titleScale, springConfig);
-
-  // Mouse parallax effect
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({
-        x: (e.clientX - window.innerWidth / 2) / 30,
-        y: (e.clientY - window.innerHeight / 2) / 30,
-      });
-    };
-
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
+  const [activeCategory, setActiveCategory] = useState("all");
 
   const handleOrderClick = (productName: string) => {
     setSelectedProduct(productName);
     setModalOpen(true);
   };
 
-  const handleSubmit = (formData: OrderFormData) => {
-    // Handle form submission here
-    console.log("Form submitted:", formData);
+  const handleSubmit = () => {
+    // Form submission logic can be added here
   };
 
   const handleFormSubmitted = () => {
-    // Show notification after modal closes
     setTimeout(() => {
       setShowNotification(true);
-
-      // Auto-hide notification after 3 seconds
       setTimeout(() => {
         setShowNotification(false);
       }, 3000);
     }, 300);
   };
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2,
-      },
-    },
-  };
+  // Simplified categories
+  const categories = [
+    { id: "all", name: "Все", icon: Sparkles },
+    { id: "transformers", name: "Трансформаторы", icon: Zap },
+    { id: "substations", name: "Подстанции", icon: Shield },
+    { id: "switches", name: "Выключатели", icon: TrendingUp },
+  ];
 
-  const cardVariants = {
-    hidden: { opacity: 0, y: 50, scale: 0.9 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      transition: {
-        duration: 0.8,
-        ease: "easeOut" as const,
-        type: "spring" as const,
-        stiffness: 300,
-      },
-    },
-  };
+  // Filter products
+  const filteredProducts =
+    activeCategory === "all"
+      ? products
+      : products.filter((product) => product.category === activeCategory);
 
   return (
     <>
-      <motion.section
-        id="products"
-        className="py-20 bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/30 relative overflow-hidden"
-        style={{
-          y: springY,
-          opacity: springOpacity,
-        }}
-      >
-        {/* Animated background elements */}
-        <motion.div
-          className="absolute top-20 left-10 w-72 h-72 bg-blue-500/5 rounded-full blur-3xl"
-          animate={{
-            scale: [1, 1.3, 1],
-            opacity: [0.2, 0.5, 0.2],
-            x: [0, 60, 0],
-            y: [0, -40, 0],
-          }}
-          transition={{
-            duration: 12,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        />
-        <motion.div
-          className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl"
-          animate={{
-            scale: [1.2, 1, 1.2],
-            opacity: [0.3, 0.6, 0.3],
-            x: [0, -60, 0],
-            y: [0, 60, 0],
-          }}
-          transition={{
-            duration: 15,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        />
-
-        <div className="container mx-auto px-4 relative z-10">
-          <motion.div
-            className="text-center mb-16"
+      <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/30 relative overflow-hidden">
+        {/* Subtle background pattern */}
+        <div className="absolute inset-0 opacity-[0.03]">
+          <div
+            className="absolute inset-0"
             style={{
-              y: springTitleY,
-              scale: springTitleScale,
+              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
             }}
+          />
+        </div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          {/* Header */}
+          <motion.div
+            className="text-center mb-12 sm:mb-16 lg:mb-20"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
           >
-            <motion.h2
-              className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 text-gray-900"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{
-                duration: 0.8,
-                type: "spring",
-                stiffness: 300,
-              }}
-              viewport={{ once: true }}
-            >
-              Наша продукция
-            </motion.h2>
-            <motion.p
-              className="text-lg md:text-xl text-gray-900 max-w-3xl mx-auto leading-relaxed"
+            <motion.div
+              className="inline-flex items-center px-3 sm:px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-xs sm:text-sm font-medium mb-4 sm:mb-6"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{
-                delay: 0.3,
-                duration: 0.6,
-                type: "spring",
-                stiffness: 300,
-              }}
+              transition={{ delay: 0.2, duration: 0.6 }}
               viewport={{ once: true }}
             >
-              Комплексные решения для энергетики и промышленности
+              <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
+              Наша продукция
+            </motion.div>
+
+            <motion.h2
+              className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6 text-gray-900"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.6 }}
+              viewport={{ once: true }}
+            >
+              Каталог{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
+                продукции
+              </span>
+            </motion.h2>
+            <motion.p
+              className="text-base sm:text-lg md:text-xl text-gray-600 max-w-2xl sm:max-w-3xl mx-auto leading-relaxed px-4 sm:px-0"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, duration: 0.6 }}
+              viewport={{ once: true }}
+            >
+              Широкий ассортимент трансформаторного оборудования и комплектующих
+              для любых задач
             </motion.p>
           </motion.div>
 
+          {/* Category Filter */}
           <motion.div
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8"
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
+            className="flex flex-wrap justify-center gap-2 sm:gap-3 mb-8 sm:mb-12 lg:mb-16 px-4 sm:px-0"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5, duration: 0.6 }}
             viewport={{ once: true }}
           >
-            {products.map((product, index) => (
+            {categories.map((category) => (
+              <motion.button
+                key={category.id}
+                onClick={() => setActiveCategory(category.id)}
+                className={`flex items-center gap-1 sm:gap-2 px-3 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl font-medium transition-all duration-300 text-xs sm:text-sm ${
+                  activeCategory === category.id
+                    ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg"
+                    : "bg-white text-gray-600 hover:text-blue-600 hover:bg-blue-50 border border-gray-200 hover:border-blue-200"
+                }`}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <category.icon className="w-3 h-3 sm:w-4 sm:h-4" />
+                {category.name}
+              </motion.button>
+            ))}
+          </motion.div>
+
+          {/* Products Grid */}
+          <motion.div
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 px-4 sm:px-0"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            viewport={{ once: true }}
+          >
+            {filteredProducts.map((product, index) => (
               <motion.div
                 key={product.id}
-                className="bg-white rounded-3xl shadow-2xl overflow-hidden hover:shadow-3xl transition-all duration-500 group cursor-pointer relative"
-                variants={cardVariants}
-                whileHover={{ scale: 1.02 }}
-                onHoverStart={() => setHoveredProduct(product.id)}
-                onHoverEnd={() => setHoveredProduct(null)}
-                style={{
-                  x: mousePosition.x * ((index % 3) - 1) * 0.05,
-                  y: mousePosition.y * ((index % 3) - 1) * 0.05,
-                }}
+                className="group bg-white rounded-xl sm:rounded-2xl shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer border border-gray-100 hover:border-blue-200 overflow-hidden"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1, duration: 0.6 }}
+                viewport={{ once: true }}
+                whileHover={{ y: -8 }}
               >
-                {/* Glow effect - supprimé pour éviter la fatigue visuelle */}
-                {/* <motion.div
-                  className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-3xl blur-xl scale-0 group-hover:scale-100 transition-all duration-700"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: hoveredProduct === product.id ? 1 : 0 }}
-                /> */}
+                {/* Product Image */}
+                <div className="relative h-40 sm:h-48 bg-gradient-to-br from-gray-50 to-blue-50 overflow-hidden">
+                  <div className="absolute top-2 sm:top-4 right-2 sm:right-4 z-10">
+                    <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-semibold shadow-lg">
+                      {product.price}
+                    </div>
+                  </div>
 
-                <Link
-                  href={`/product/${product.id}`}
-                  className="block relative z-10"
-                >
-                  <div className="h-40 sm:h-48 md:h-56 bg-white overflow-hidden relative">
-                    <motion.div
-                      className="absolute inset-0 bg-gradient-to-br from-blue-600/5 to-purple-600/5"
-                      initial={{ opacity: 0 }}
-                      animate={{
-                        opacity: hoveredProduct === product.id ? 0.3 : 0,
-                      }}
-                      transition={{ duration: 0.3 }}
-                    />
+                  <Link href={`/product/${product.id}`}>
                     <Image
                       src={product.image}
                       alt={product.name}
                       fill
-                      className="object-contain p-4 group-hover:scale-105 transition-transform duration-500 brightness-110 contrast-110"
+                      className="object-contain p-4 sm:p-6 group-hover:scale-110 transition-transform duration-500"
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                       priority={index < 3}
                     />
-                  </div>
-                </Link>
-                <div className="p-4 sm:p-6 md:p-8 relative z-10">
-                  <motion.h3
-                    className="text-lg sm:text-xl md:text-2xl font-bold mb-2 sm:mb-3 text-gray-900 group-hover:text-blue-600 transition-colors duration-300"
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{
-                      delay: 0.2,
-                      type: "spring",
-                      stiffness: 300,
-                    }}
-                    style={{
-                      textShadow: "0 0 20px rgba(37, 99, 235, 0.1)",
-                    }}
-                  >
+                  </Link>
+                </div>
+
+                {/* Product Info */}
+                <div className="p-4 sm:p-6">
+                  <h3 className="text-base sm:text-lg font-bold mb-2 sm:mb-3 text-gray-900 group-hover:text-blue-600 transition-colors duration-300">
                     {product.name}
-                  </motion.h3>
-                  <motion.p
-                    className="text-gray-900 mb-4 sm:mb-6 leading-relaxed text-sm sm:text-base"
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{
-                      delay: 0.3,
-                      type: "spring",
-                      stiffness: 300,
-                    }}
-                  >
+                  </h3>
+
+                  <p className="text-gray-600 mb-3 sm:mb-4 text-xs sm:text-sm leading-relaxed">
                     {product.shortDesc}
-                  </motion.p>
+                  </p>
+
+                  {/* Key Features */}
+                  <div className="mb-4 sm:mb-6">
+                    <div className="flex flex-wrap gap-1 sm:gap-2">
+                      {product.features.slice(0, 2).map((feature, idx) => (
+                        <span
+                          key={idx}
+                          className="inline-flex items-center gap-1 px-2 sm:px-3 py-1 sm:py-1.5 bg-blue-50 text-blue-700 text-xs rounded-lg border border-blue-200"
+                        >
+                          <CheckCircle className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                          {feature.split(":")[0]}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* CTA Button */}
                   <motion.button
                     onClick={() => handleOrderClick(product.name)}
-                    className="w-full px-4 py-3 sm:px-6 sm:py-3 border-2 border-blue-600 text-blue-600 rounded-2xl hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 hover:text-white transition-all duration-500 font-semibold text-sm sm:text-lg group-hover:shadow-2xl relative overflow-hidden focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    whileHover={{
-                      scale: 1.02,
-                      boxShadow: "0 20px 40px -10px rgba(37, 99, 235, 0.4)",
-                    }}
+                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-semibold hover:shadow-lg relative overflow-hidden focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 group-hover:shadow-xl text-sm sm:text-base"
+                    whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{
-                      delay: 0.4,
-                      duration: 0.6,
-                      type: "spring",
-                      stiffness: 300,
-                    }}
                   >
-                    <span className="relative z-10">Заказать</span>
+                    <span className="flex items-center justify-center gap-1 sm:gap-2">
+                      Заказать
+                      <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform duration-300" />
+                    </span>
                   </motion.button>
                 </div>
               </motion.div>
             ))}
           </motion.div>
+
+          {/* Empty State */}
+          {filteredProducts.length === 0 && (
+            <motion.div
+              className="text-center py-12 sm:py-16"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6 }}
+            >
+              <div className="text-gray-400 text-base sm:text-lg">
+                Продукты в данной категории не найдены
+              </div>
+            </motion.div>
+          )}
+
+          {/* About Company Section */}
+          <motion.div
+            className="mt-16 sm:mt-20 md:mt-24 lg:mt-32"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+          >
+            <div className="relative px-4 sm:px-6 lg:px-8">
+              {/* Simple Gradient Block */}
+              <div className="relative bg-gradient-to-br from-blue-500 via-purple-600 to-indigo-700 rounded-2xl sm:rounded-3xl overflow-hidden p-6 sm:p-8 md:p-10 lg:p-12">
+                {/* Content */}
+                <div className="relative z-10 text-white">
+                  <motion.div
+                    className="mb-6 sm:mb-8"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2, duration: 0.6 }}
+                    viewport={{ once: true }}
+                  >
+                    <span className="inline-block px-4 py-2 bg-white/20 backdrop-blur-sm text-white rounded-full text-sm font-medium border border-white/30">
+                      О КОМПАНИИ
+                    </span>
+                  </motion.div>
+
+                  <motion.h3
+                    className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6 lg:mb-8"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3, duration: 0.6 }}
+                    viewport={{ once: true }}
+                  >
+                    Компания{" "}
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-200 to-purple-200">
+                      УралСиЛТранс
+                    </span>
+                  </motion.h3>
+
+                  <motion.p
+                    className="text-base sm:text-lg md:text-xl lg:text-2xl text-white/95 leading-relaxed mb-6 sm:mb-8 lg:mb-10 max-w-4xl"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4, duration: 0.6 }}
+                    viewport={{ once: true }}
+                  >
+                    Ведущий российский производитель трансформаторного
+                    оборудования с 2003 года. Надежная команда профессионалов с
+                    мощным технологическим потенциалом. Мы успешно работаем на
+                    рынке Российской Федерации, динамично развиваем
+                    энергетический сегмент и внедряем инновационные решения для
+                    модернизации и строительства энергетических систем.
+                  </motion.p>
+
+                  <motion.div
+                    className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-start items-start sm:items-center"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5, duration: 0.6 }}
+                    viewport={{ once: true }}
+                  >
+                    <motion.button
+                      onClick={() => (window.location.href = "/aboutus")}
+                      className="inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-4 bg-white text-gray-900 font-semibold rounded-xl hover:bg-gray-100 transition-all duration-300 group shadow-lg text-base sm:text-lg"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      ПОДРОБНЕЕ
+                      <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
+                    </motion.button>
+
+                    <motion.button
+                      onClick={() => (window.location.href = "/contact")}
+                      className="inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-4 bg-transparent border-2 border-white/70 text-white font-semibold rounded-xl hover:bg-white/10 hover:border-white transition-all duration-300 group text-base sm:text-lg"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      СВЯЗАТЬСЯ
+                      <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
+                    </motion.button>
+                  </motion.div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
         </div>
-      </motion.section>
+      </section>
 
       <OrderModal
         isOpen={modalOpen}
@@ -291,7 +338,7 @@ export const Services = () => {
               type: "spring",
               stiffness: 400,
             }}
-            className="bg-white border border-green-200 shadow-2xl rounded-2xl p-4 max-w-sm mx-auto"
+            className="bg-white shadow-2xl rounded-2xl p-4 max-w-sm mx-auto border border-green-200"
           >
             <div className="flex items-center space-x-3">
               <div className="flex-shrink-0">

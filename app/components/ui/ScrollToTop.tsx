@@ -29,9 +29,10 @@ const ScrollToTop = () => {
   return visible ? (
     <button
       onClick={scrollToTop}
-      className="fixed bottom-6 right-6 bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 transition"
+      className="fixed bottom-4 sm:bottom-6 right-4 sm:right-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white p-2 sm:p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 z-50"
+      aria-label="Прокрутить наверх"
     >
-      <ArrowUp className="h-6 w-6" />
+      <ArrowUp className="h-4 w-4 sm:h-6 sm:w-6" />
     </button>
   ) : null;
 };

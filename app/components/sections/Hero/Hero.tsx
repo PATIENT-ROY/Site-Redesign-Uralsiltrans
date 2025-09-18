@@ -2,10 +2,12 @@
 
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { useState, useEffect } from "react";
+import Image from "next/image";
 
 export const Hero = () => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [videoError, setVideoError] = useState(false);
+  // const [videoError, setVideoError] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   // Parallax scroll effects
   const { scrollY } = useScroll();
@@ -37,8 +39,12 @@ export const Hero = () => {
     }
   };
 
-  const handleVideoError = () => {
-    setVideoError(true);
+  // const handleVideoError = () => {
+  //   setVideoError(true);
+  // };
+
+  const handleImageError = () => {
+    setImageError(true);
   };
 
   return (
@@ -51,21 +57,28 @@ export const Hero = () => {
       }}
     >
       {/* Video Background with Fallback */}
-      {!videoError ? (
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="absolute top-0 left-0 w-full h-full object-cover"
-          onError={handleVideoError}
-        >
-          <source src="/videos/hero-bg.mp4" type="video/mp4" />
-          <source src="/videos/hero-bg.webm" type="video/webm" />
-          {/* Fallback message */}
-          <p className="text-white">Ваш браузер не поддерживает видео.</p>
-        </video>
+      {!imageError ? (
+        <Image
+          src="/bg-image/hero-bg.png"
+          alt="Hero Background"
+          fill
+          className="object-cover"
+          onError={handleImageError}
+        />
       ) : (
+        // <video
+        //   autoPlay
+        //   loop
+        //   muted
+        //   playsInline
+        //   className="absolute top-0 left-0 w-full h-full object-cover"
+        //   onError={handleVideoError}
+        // >
+        //   <source src="/videos/hero-bg.mp4" type="video/mp4" />
+        //   <source src="/videos/hero-bg.webm" type="video/webm" />
+        //   {/* Fallback message */}
+        //   <p className="text-white">Ваш браузер не поддерживает видео.</p>
+        // </video>
         /* Fallback Background - Gradient */
         <div
           className="absolute top-0 left-0 w-full h-full"
@@ -155,12 +168,12 @@ export const Hero = () => {
             </motion.button>
 
             <motion.button
-              onClick={() => scrollToSection("контакты")}
+              onClick={() => (window.location.href = "/contact")}
               className="px-4 py-3 sm:px-8 sm:py-4 bg-white/10 border-2 border-white/30 text-white font-bold rounded-xl hover:bg-white/20 hover:border-white/50 focus:ring-4 focus:ring-white/20 focus:outline-none shadow-2xl hover:shadow-3xl transition-all duration-300 text-sm sm:text-base"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              Консультация
+              <span className="relative z-10">Консультация</span>
             </motion.button>
           </motion.div>
         </motion.div>

@@ -7,7 +7,9 @@ export const products = [
     image: "/images/products/image1.png",
     features: ["Feature A", "Feature B", "Feature C"],
     application: "Application details for Transformer 1.",
-    specifications: [{ label: "Spec 1", value: "Value 1" }]
+    specifications: [{ label: "Spec 1", value: "Value 1" }],
+    category: "transformers",
+    price: "от 500,000 ₽"
   },
   {
     id: 2,
@@ -17,46 +19,56 @@ export const products = [
     image: "/images/products/image2.png",
     features: ["Feature A", "Feature B", "Feature C"],
     application: "Application details for Transformer 2.",
-    specifications: [{ label: "Spec 1", value: "Value 1" }]
+    specifications: [{ label: "Spec 1", value: "Value 1" }],
+    category: "transformers",
+    price: "от 750,000 ₽"
   },
   {
     id: 3,
-    name: "Трансформатор 3",
-    shortDesc: "Описание трансформатора 3",
-    description: "Полное описание для Трансформатора 3. Здесь может быть подробная информация о продукте, его характеристики и преимущества.",
+    name: "Подстанция 1",
+    shortDesc: "Описание подстанции 1",
+    description: "Полное описание для Подстанции 1. Здесь может быть подробная информация о продукте, его характеристики и преимущества.",
     image: "/images/products/image3.png",
     features: ["Feature A", "Feature B", "Feature C"],
-    application: "Application details for Transformer 3.",
-    specifications: [{ label: "Spec 1", value: "Value 1" }]
+    application: "Application details for Substation 1.",
+    specifications: [{ label: "Spec 1", value: "Value 1" }],
+    category: "substations",
+    price: "от 1,200,000 ₽"
   },
   {
     id: 4,
-    name: "Трансформатор 4",
-    shortDesc: "Описание трансформатора 4",
-    description: "Полное описание для Трансформатора 4. Здесь может быть подробная информация о продукте, его характеристики и преимущества.",
+    name: "Выключатель 1",
+    shortDesc: "Описание выключателя 1",
+    description: "Полное описание для Выключателя 1. Здесь может быть подробная информация о продукте, его характеристики и преимущества.",
     image: "/images/products/image4.png",
     features: ["Feature A", "Feature B", "Feature C"],
-    application: "Application details for Transformer 4.",
-    specifications: [{ label: "Spec 1", value: "Value 1" }]
+    application: "Application details for Switch 1.",
+    specifications: [{ label: "Spec 1", value: "Value 1" }],
+    category: "switches",
+    price: "от 300,000 ₽"
   },
   {
     id: 5,
-    name: "Трансформатор 5",
-    shortDesc: "Описание трансформатора 5",
-    description: "Полное описание для Трансформатора 5. Здесь может быть подробная информация о продукте, его характеристики и преимущества.",
+    name: "Реактор 1",
+    shortDesc: "Описание реактора 1",
+    description: "Полное описание для Реактора 1. Здесь может быть подробная информация о продукте, его характеристики и преимущества.",
     image: "/images/products/image5.png",
     features: ["Feature A", "Feature B", "Feature C"],
-    application: "Application details for Transformer 5.",
-    specifications: [{ label: "Spec 1", value: "Value 1" }]
+    application: "Application details for Reactor 1.",
+    specifications: [{ label: "Spec 1", value: "Value 1" }],
+    category: "reactors",
+    price: "от 400,000 ₽"
   },
   {
     id: 6,
-    name: "Трансформатор 6",
-    shortDesc: "Описание трансформатора 6",
-    description: "Полное описание для Трансформатора 6. Здесь может быть подробная информация о продукте, его характеристики и преимущества.",
+    name: "Кабель 1",
+    shortDesc: "Описание кабеля 1",
+    description: "Полное описание для Кабеля 1. Здесь может быть подробная информация о продукте, его характеристики и преимущества.",
     image: "/images/products/image6.png",
     features: ["Feature A", "Feature B", "Feature C"],
-    application: "Application details for Transformer 6.",
-    specifications: [{ label: "Spec 1", value: "Value 1" }]
+    application: "Application details for Cable 1.",
+    specifications: [{ label: "Spec 1", value: "Value 1" }],
+    category: "cables",
+    price: "от 150,000 ₽"
   }
 ]; 

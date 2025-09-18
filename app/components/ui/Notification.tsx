@@ -43,7 +43,7 @@ export const Notification = ({
   }[type];
 
   return (
-    <div className="fixed top-4 center-4 z-50 animate-fade-in">
+    <div className="fixed top-4 right-4 z-50 animate-fade-in">
       <div
         className={`${bgColor} border px-4 py-3 rounded-lg shadow-lg max-w-xs md:max-w-sm flex items-start`}
       >

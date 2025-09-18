@@ -13,8 +13,8 @@ const Footer = () => {
         <Image
           src="/images/footer-bg.png"
           alt="Footer background"
-          layout="fill"
-          objectFit="cover"
+          fill
+          className="object-cover"
           quality={100}
         />
         {/* Overlay */}

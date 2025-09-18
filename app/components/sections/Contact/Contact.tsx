@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Phone, Mail } from "lucide-react";
+import { Phone, Mail, Copy, Check } from "lucide-react";
 import { Notification } from "../../ui/Notification";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -45,6 +45,26 @@ const schema = yup
 
 export const Contact = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+
+  // Function to copy text to clipboard
+  const copyToClipboard = async (text: string, index: number) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedIndex(index);
+      setTimeout(() => setCopiedIndex(null), 2000);
+    } catch {
+      // Fallback for older browsers
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textArea);
+      setCopiedIndex(index);
+      setTimeout(() => setCopiedIndex(null), 2000);
+    }
+  };
 
   const {
     register,
@@ -79,8 +99,7 @@ export const Contact = () => {
     e.target.value = value;
   };
 
-  const onSubmit = async (data: ContactFormData) => {
-    console.log(data);
+  const onSubmit = async () => {
     setIsSubmitted(true);
 
     // Reset form after 3 seconds
@@ -141,13 +160,30 @@ export const Contact = () => {
               {contactInfo.map((item, index) => (
                 <div key={index} className="flex items-start">
                   <div className="flex-shrink-0 text-blue-300">{item.icon}</div>
-                  <div className="ml-3 sm:ml-4">
+                  <div className="ml-3 sm:ml-4 flex-1">
                     <h3 className="font-semibold text-sm sm:text-base">
                       {item.title}
                     </h3>
-                    <p className="text-blue-100 text-sm sm:text-base">
-                      {item.value}
-                    </p>
+                    <div className="group relative flex items-center gap-2 mt-1">
+                      <p
+                        className="text-blue-100 text-sm sm:text-base cursor-copy hover:text-blue-300 transition-colors"
+                        onClick={() => copyToClipboard(item.value, index)}
+                        title="Кликните для копирования"
+                      >
+                        {item.value}
+                      </p>
+                      <button
+                        onClick={() => copyToClipboard(item.value, index)}
+                        className="opacity-0 group-hover:opacity-100 text-blue-300 hover:text-white transition-all duration-200 p-1"
+                        title="Копировать"
+                      >
+                        {copiedIndex === index ? (
+                          <Check size={16} className="text-green-400" />
+                        ) : (
+                          <Copy size={16} />
+                        )}
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}

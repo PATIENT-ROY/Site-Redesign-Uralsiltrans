@@ -28,7 +28,7 @@ const Footer = () => {
             <div className="flex items-center space-x-2 sm:space-x-3">
               <div className="w-10 h-10 sm:w-12 sm:h-12 relative">
                 <Image
-                  src="/favicon.png"
+                  src="/logo/favicon.png"
                   alt="УРАЛСИЛТРАНС"
                   fill
                   className="object-contain"

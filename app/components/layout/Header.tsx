@@ -120,7 +120,7 @@ const Header = () => {
             <div className="flex items-center space-x-3 sm:space-x-4">
               <div className="w-12 h-12 sm:w-14 sm:h-14 relative group-hover:scale-105 transition-transform duration-300">
                 <Image
-                  src="/favicon.png"
+                  src="/logo/favicon.png"
                   alt="УРАЛСИЛТРАНС"
                   fill
                   sizes="(max-width: 640px) 48px, 56px"

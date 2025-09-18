@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   description:
     "Ведущий поставщик электротехнического оборудования с 20-летним опытом работы на рынке",
   icons: {
-    icon: "/favicon.png",
+    icon: "/logo/favicon.png",
   },
 };
 
@@ -33,7 +33,7 @@ export default function RootLayout({
   return (
     <html lang="ru">
       <head>
-        <link rel="icon" href="/favicon.png" type="image/png" />
+        <link rel="icon" href="/logo/favicon.png" type="image/png" />
       </head>
       <body className={`${inter.variable} ${poppins.variable} antialiased`}>
         {children}
